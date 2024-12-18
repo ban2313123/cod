@@ -187,7 +187,11 @@ while running:
     # Если мем отображается, показываем его на экране
     if current_meme and time.time() < meme_end_time:
         text_surface = font.render(current_meme, True, RED)
-        screen.blit(text_surface, (WIDTH // 2 - text_surface.get_width() // 2, HEIGHT // 2))
+        
+        # Центрируем мем на экране
+        meme_x = (screen.get_width() - text_surface.get_width()) // 2
+        meme_y = (screen.get_height() - text_surface.get_height()) // 2
+        screen.blit(text_surface, (meme_x, meme_y))
     else:
         current_meme = None  # Если время мема истекло, очищаем
 
