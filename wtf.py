@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import time
 
 # Инициализация Pygame
 pygame.init()
@@ -46,6 +47,18 @@ color_change_enabled = True
 # Таймер для генерации новых чисел
 NEW_NUMBER_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(NEW_NUMBER_EVENT, 1000)  # Новое число каждую секунду
+
+# МЕМЫ
+memes = [
+    "Ошибка: Загрузка мозга не удалась.",
+    "Невозможно найти логическую ошибку. Ты просто не умеешь играть.",
+    "Система перегружена мемами.",
+    "У меня не хватает памяти для этого... В смысле для тебя.",
+    "О, опять эта ошибка! Почему бы просто не перезагрузить компьютер?"
+]
+
+# Время, через которое будет отображаться мем
+MEME_TIME = 5000  # 5000 миллисекунд (5 секунд)
 
 def get_color_shift(base_color, shift_amount):
     r = (base_color[0] + shift_amount) % 256
@@ -121,6 +134,17 @@ def pause_menu():
                     pause_running = False
                     main_menu()  # Выход в главное меню
 
+# Функция для отображения случайного мема
+def show_random_meme():
+    meme_text = random.choice(memes)
+    text_surface = font.render(meme_text, True, RED)
+    screen.blit(text_surface, (WIDTH // 2 - text_surface.get_width() // 2, HEIGHT // 2))
+    pygame.display.flip()
+
+# Время появления мемов
+last_meme_time = time.time()
+MEME_INTERVAL = random.randint(5, 10)  # Мемы будут появляться случайным интервалом от 5 до 10 секунд
+
 main_menu()
 
 running = True
@@ -128,6 +152,13 @@ clock = pygame.time.Clock()
 
 while running:
     screen.fill(BLACK)
+
+    # Проверяем, не настало ли время для отображения мема
+    if time.time() - last_meme_time > MEME_INTERVAL / 1000.0:
+        show_random_meme()
+        last_meme_time = time.time()
+        MEME_INTERVAL = random.randint(5, 10)  # Случайный интервал для следующего мема
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
