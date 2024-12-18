@@ -60,6 +60,12 @@ memes = [
 # Время, через которое будет отображаться мем
 MEME_TIME = 5000  # 5000 миллисекунд (5 секунд)
 
+# Для управления временем появления мемов
+last_meme_time = time.time()
+MEME_INTERVAL = random.randint(5, 10)  # Мемы будут появляться случайным интервалом от 5 до 10 секунд
+current_meme = None
+meme_end_time = 0
+
 def get_color_shift(base_color, shift_amount):
     r = (base_color[0] + shift_amount) % 256
     g = (base_color[1] + shift_amount * 2) % 256
@@ -136,14 +142,12 @@ def pause_menu():
 
 # Функция для отображения случайного мема
 def show_random_meme():
-    meme_text = random.choice(memes)
-    text_surface = font.render(meme_text, True, RED)
-    screen.blit(text_surface, (WIDTH // 2 - text_surface.get_width() // 2, HEIGHT // 2))
-    pygame.display.flip()
+    global current_meme, meme_end_time
+    current_meme = random.choice(memes)
+    meme_end_time = time.time() + MEME_TIME / 1000  # Устанавливаем время окончания показа мема
 
 # Время появления мемов
 last_meme_time = time.time()
-MEME_INTERVAL = random.randint(5, 10)  # Мемы будут появляться случайным интервалом от 5 до 10 секунд
 
 main_menu()
 
@@ -153,11 +157,17 @@ clock = pygame.time.Clock()
 while running:
     screen.fill(BLACK)
 
-    # Проверяем, не настало ли время для отображения мема
-    if time.time() - last_meme_time > MEME_INTERVAL / 1000.0:
+    # Проверяем, не настало ли время для отображения нового мема
+    if time.time() - last_meme_time > MEME_INTERVAL:
         show_random_meme()
-        last_meme_time = time.time()
-        MEME_INTERVAL = random.randint(5, 10)  # Случайный интервал для следующего мема
+        last_meme_time = time.time()  # Обновляем время для следующего мема
+
+    # Если мем отображается, показываем его на экране
+    if current_meme and time.time() < meme_end_time:
+        text_surface = font.render(current_meme, True, RED)
+        screen.blit(text_surface, (WIDTH // 2 - text_surface.get_width() // 2, HEIGHT // 2))
+    else:
+        current_meme = None  # Если время мема истекло, очищаем
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
