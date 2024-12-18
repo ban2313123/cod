@@ -48,13 +48,35 @@ color_change_enabled = True
 NEW_NUMBER_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(NEW_NUMBER_EVENT, 1000)  # Новое число каждую секунду
 
-# МЕМЫ
+# МЕМЫ (добавлены дополнительные мемы)
 memes = [
     "Ошибка: Загрузка мозга не удалась.",
     "Невозможно найти логическую ошибку. Ты просто не умеешь играть.",
     "Система перегружена мемами.",
     "У меня не хватает памяти для этого... В смысле для тебя.",
-    "О, опять эта ошибка! Почему бы просто не перезагрузить компьютер?"
+    "О, опять эта ошибка! Почему бы просто не перезагрузить компьютер?",
+    "Мемы убивают процессор. Выключите их на 5 минут.",
+    "Ошибка 404: Память не найдена.",
+    "Кто-то позвонил? Нет, это просто ошибка в системе.",
+    "Запрос на обновление не может быть выполнен: слишком много мемов.",
+    "Время ожидания истекло, загрузка не произошла.",
+    "Мой создатель сломал меня с этим кодом.",
+    "Невозможно продолжить игру, слишком много мемов.",
+    "Мемы сыпятся, как ошибки компиляции!",
+    "Кто не любит мемы? Это же ошибка!",
+    "Слишком много веселых картинок — система перегружена!",
+    "Ошибка: Определение «жизни» не найдено.",
+    "Внимание! Мозг перегружен. МЕМЫ ВЫХОДЯТ ИЗ ПОД КОНТРОЛЯ!",
+    "Ошибка времени: ваша реакция слишком медленная для этих мемов.",
+    "Превышен лимит мемов в игре. Перезагрузитесь для продолжения.",
+    "Мемы заполняют экран. Уберите их, пожалуйста!",
+    "Система сообщает: мемы превращают ваш мозг в хаос.",
+    "Ошибка! Не удается вычислить количество мемов в системе.",
+    "Вы не можете сдать экзамен, если не поймали мемы!",
+    "Мемы на сервере перегружены. Запрос на рестарт.",
+    "Превышен лимит использования юмора. Ошибка!",
+    "Все мемы повреждены, перезагрузите шутку.",
+    "Этот мем занял больше места, чем ваша игра.",
 ]
 
 # Время, через которое будет отображаться мем
@@ -198,35 +220,46 @@ while running:
     if keys[pygame.K_p]:
         pause_menu()
 
+    # Рисуем игрока
     pygame.draw.rect(screen, GREEN, (player_x, player_y, player_width, player_height))
-    
+
+    # Обработка падения чисел
     for number in falling_numbers[:]:
         number["y"] += number_speed
-        number_rect = pygame.Rect(number["x"], number["y"], number_width, number_height)
         if color_change_enabled:
             number["base_color"] = get_color_shift(number["base_color"], number["color_shift"])
-        text_surface = font.render(str(number["value"]), True, number["base_color"])
-        screen.blit(text_surface, (number["x"] + 10, number["y"] + 5))
-        player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
-        if number_rect.colliderect(player_rect):
+
+        # Проверка на перехват числа игроком
+        if (number["x"] + number_width > player_x and number["x"] < player_x + player_width and
+            number["y"] + number_height > player_y):
             if number["value"] == target_number:
                 score += 1
+                target_number = random.randint(1, 9)  # Обновляем цель, если число поймано правильно
             else:
-                score -= 1
+                target_number = random.randint(1, 9)  # Обновляем цель, если число поймано неправильно
             falling_numbers.remove(number)
-            target_number = random.randint(1, 9) 
+
+        # Удаляем число, если оно прошло экран
         if number["y"] > HEIGHT:
             falling_numbers.remove(number)
-    
+
+        # Рисуем число
+        number_text = font.render(str(number["value"]), True, number["base_color"])
+        screen.blit(number_text, (number["x"], number["y"]))
+
+    # Рисуем счёт
     score_text = font.render(f"Счёт: {score}", True, WHITE)
-    target_text = font.render(f"Лови число: {target_number}", True, WHITE)
     screen.blit(score_text, (10, 10))
-    screen.blit(target_text, (10, 50))
-    
+
+    # Рисуем целевое число
+    target_text = font.render(f"Цель: {target_number}", True, WHITE)
+    screen.blit(target_text, (WIDTH - target_text.get_width() - 10, 10))
+
+    # Отображение FPS
     if show_fps:
         fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, WHITE)
-        screen.blit(fps_text, (10, 90))
-    
+        screen.blit(fps_text, (WIDTH - fps_text.get_width() - 10, 40))
+
     pygame.display.flip()
     clock.tick(60)
 
