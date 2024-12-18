@@ -43,6 +43,7 @@ target_number = random.randint(1, 9)
 # Настройки
 show_fps = True
 color_change_enabled = True
+memes_enabled = True  # Переменная для включения/выключения мемов
 
 # Таймер для генерации новых чисел
 NEW_NUMBER_EVENT = pygame.USEREVENT + 1
@@ -101,32 +102,6 @@ memes = [
     "Слишком много шума от мемов, система не может больше функционировать.",
     "Ошибка: мемы не совместимы с вашей текущей ситуацией.",
     "Мемы разрушают реальность. Попробуйте выйти и вернуться позже.",
-    "Ошибка загрузки! Не удалось синхронизировать мемы с сервером.",
-    "Мемы начали поглощать все вычислительные ресурсы.",
-    "Ошибка: Доступ к мемам ограничен. Попробуйте позже.",
-    "Мемы заставляют всю систему работать медленно.",
-    "Ваши мемы израсходовали все системные ресурсы.",
-    "Слишком много мемов для этой машины. Требуется перезагрузка.",
-    "Где-то здесь есть ошибка... или это просто мемы?",
-    "Перезагрузка не решит проблему с мемами.",
-    "Мемы уничтожают все старые шутки. Подготовьтесь к новым!",
-    "Этот мем настолько велик, что заблокировал систему.",
-    "Загрузка не удалась. Память переполнена мемами.",
-    "Ошибка: Пытаетесь загрузить слишком много смеха.",
-    "Шутки не подходят для этой операционной системы.",
-    "Мемы, кажется, превращаются в вирус. Нужно прекратить их распространение.",
-    "Перезагрузка системы не поможет в случае мемов.",
-    "Мемы сожрали все ваши байты. Вам нужно больше памяти.",
-    "Память полностью занята мемами. Время для рестарта.",
-    "Мемы поглотили все ресурсы вашего компьютера.",
-    "Мемы настолько велики, что они ломают эту игру.",
-    "Слишком много мемов! Прекратите запрашивать их.",
-    "Ошибка: слишком много комедийных файлов для этой системы.",
-    "Система не может обработать столь сложные мемы.",
-    "Мемы превзошли все ожидания! Ошибка при загрузке.",
-    "Перегрузка мемами. Это слишком смешно для вашей системы.",
-    "Процесс мемов завершился с ошибкой: слишком много юмора.",
-    "Превышено количество символов в меме. Время для обновлений.",
 ]
 
 
@@ -167,16 +142,18 @@ def main_menu():
                     settings_menu()
 
 def settings_menu():
-    global show_fps, color_change_enabled
+    global show_fps, color_change_enabled, memes_enabled
     settings_running = True
     while settings_running:
         screen.fill(BLACK)
         fps_text = font.render(f"Показывать FPS: {'ВКЛ' if show_fps else 'ВЫКЛ'} (Нажмите F)", True, WHITE)
         color_text = font.render(f"Изменение цвета чисел: {'ВКЛ' if color_change_enabled else 'ВЫКЛ'} (Нажмите C)", True, WHITE)
+        memes_text = font.render(f"Мемы: {'ВКЛ' if memes_enabled else 'ВЫКЛ'} (Нажмите M)", True, WHITE)
         back_text = font.render("Нажмите ESC для выхода", True, WHITE)
         screen.blit(fps_text, (10, 10))
         screen.blit(color_text, (10, 60))
-        screen.blit(back_text, (10, 110))
+        screen.blit(memes_text, (10, 110))
+        screen.blit(back_text, (10, 160))
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -189,6 +166,8 @@ def settings_menu():
                     show_fps = not show_fps
                 if event.key == pygame.K_c:
                     color_change_enabled = not color_change_enabled
+                if event.key == pygame.K_m:
+                    memes_enabled = not memes_enabled  # Переключаем состояние мемов
 
 def pause_menu():
     global running
@@ -231,12 +210,12 @@ while running:
     screen.fill(BLACK)
 
     # Проверяем, не настало ли время для отображения нового мема
-    if time.time() - last_meme_time > MEME_INTERVAL:
+    if memes_enabled and time.time() - last_meme_time > MEME_INTERVAL:
         show_random_meme()
         last_meme_time = time.time()  # Обновляем время для следующего мема
 
     # Если мем отображается, показываем его на экране
-    if current_meme and time.time() < meme_end_time:
+    if memes_enabled and current_meme and time.time() < meme_end_time:
         text_surface = font.render(current_meme, True, RED)
         
         # Центрируем мем на экране
